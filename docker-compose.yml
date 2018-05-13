@@ -1,0 +1,34 @@
+version: '3'
+services:
+  torreja:
+   build: torreja/.
+   restart: unless-stopped
+   networks:
+    eval:
+      aliases:
+       - torreja
+   expose:
+    - 80
+  proxy:
+   build: proxy/.
+   restart: unless-stopped
+   networks:
+    - eval
+   ports:
+    - "80:80"
+    - "443:443"
+   depends_on:
+    - torreja
+  dns:
+   build: dns/.
+   restart: unless-stopped
+   depends_on:
+    - proxy
+   links:
+    - "proxy:proxy"
+   ports:
+    - "53:53/udp"
+   networks:
+    - eval
+networks:
+  eval: {}
